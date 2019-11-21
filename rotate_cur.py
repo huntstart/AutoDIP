@@ -52,18 +52,18 @@ def rotate(x, y):
 		ynew[i] = (-x[i] * math.sin(dg) + y[i] * math.cos(dg) + b)
 	return xnew, ynew
 
-halfwindow = 200
-avg = 20  # 十分之1半窗口
+halfwindow = 400
+avg = 40  # 十分之1半窗口
 level = 2
 amp = 800 / 0.0025
 notCount = 600
-checkfolder_root = '../sr-es2-set14-4'
+checkfolder_root = '../denoise-set1'#use the file name
 print (checkfolder_root)
-filename = '{}/best-eopch2.txt'.format(checkfolder_root)
+filename = '{}/best-eopch.txt'.format(checkfolder_root)
 file2 = open(filename, 'w', encoding='utf-8')
 file2.writelines('{}\t{}\t{}\t{}\t{}\t{}'.format('imgID','maxCurErr','maxCurPsr','maxEpc','PsrRate','EndRate')+ '\n')
 
-file = open('../data/set14.list','r',encoding='utf-8')
+file = open('../data/denoise.list','r',encoding='utf-8')
 line = file.readline()  # 读list第一行
 line = line.strip('\n')  # 删除首尾换行
 line = file.readline()  # line为读到的list第二行
@@ -71,14 +71,12 @@ while line:
 	line = line.strip('\n')
 	id_img = int(line[0:line.find(': ')])
 	checkfolder = '{}/{}'.format(checkfolder_root,id_img)
-	error = np.loadtxt('{}/pseudoErrorAtEpoch2.log'.format(checkfolder))
-	#psrn = np.loadtxt('{}/psrn_{}.log'.format(checkfolder,id_img))
-	#	用于超分辨率
-	psrn = np.loadtxt('{}/psrn_HR.log'.format(checkfolder, id_img))
+	error = np.loadtxt('{}/pseudoErrorAtEpoch.log'.format(checkfolder))
+	psrn = np.loadtxt('{}/psrn_{}.log'.format(checkfolder,id_img))
+	#	for super-resolution
+	# psrn = np.loadtxt('{}/psrn_HR.log'.format(checkfolder, id_img))
 	
 #if there is a breakpoint,stop at it
-#此处会导致一个小问题就是，可能会将最开始的也截断，导致ValueError: attempt to get argmax of an empty sequence
-	#再多加一个notCount
 	for i in range(notCount,error.shape[0]-10):
 		if error[i,1]-error[i+10,1]>0.000015:
 			error = error[:i]
@@ -126,10 +124,7 @@ while line:
 		cur[i] = curvature(f, 0)
 		rdPrint('%i\t%.7f' % (i, curvature(f, 0)), '{}/cur.log'.format(checkfolder))
 
-	# print(dg)
-
-	#notCount = 800			#前面部分误差大的不统计
-	#超分辨率
+	
 
 	print ('notCount:',notCount)
 	max_index = np.argmax(np.array(cur[notCount:]))+notCount
@@ -155,7 +150,7 @@ while line:
 	plt.plot(error[notCount:,0],error[notCount:,1],'r')
 	plt.plot(error[notCount:,0],testP[:],'y')
 
-	plt.savefig('{}/2_2002.png'.format(checkfolder))
+	plt.savefig('{}/2_400.png'.format(checkfolder))
 	#plt.close()
 	line = file.readline()
 
